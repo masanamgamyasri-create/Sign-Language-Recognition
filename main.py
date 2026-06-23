@@ -36,6 +36,9 @@ while True:
 
             landmarks = hand_landmarks.landmark
 
+            thumb_tip = landmarks[4]
+            index_tip = landmarks[8]
+
             fingers = []
 
             # Thumb
@@ -54,44 +57,53 @@ while True:
 
             total_fingers = sum(fingers)
 
-            gesture = ""
-
-            if total_fingers == 0:
-                 gesture = "A"
-
-            elif total_fingers == 1:
-                gesture = "ONE"
-
-            elif total_fingers == 2:
-                gesture = "VICTORY"
-
-            elif total_fingers == 5:
-                gesture = "B"
-
-            elif total_fingers == 3:
-                gesture = "THREE"
-
-            elif total_fingers == 4:
-                gesture = "FOUR"
-
             thumb = fingers[0]
             index = fingers[1]
             middle = fingers[2]
             ring = fingers[3]
             pinky = fingers[4]
 
-            if thumb == 1 and index == 1 and middle == 0 and ring == 0 and pinky == 0:
+            distance = ((thumb_tip.x - index_tip.x) ** 2 +
+            (thumb_tip.y - index_tip.y) ** 2) ** 0.5
+
+            gesture = ""
+
+            if distance < 0.05:
+                gesture = "OK"
+
+            elif total_fingers == 0:
+                gesture = "A"
+
+            elif total_fingers == 5:
+                gesture = "B"
+
+            elif thumb == 0 and index == 1 and middle == 0 and ring == 0 and pinky == 0:
+                gesture = "D"
+
+            elif thumb == 1 and index == 0 and middle == 0 and ring == 0 and pinky == 1:
+                gesture = "Y"
+
+            elif thumb == 0 and index == 1 and middle == 1 and ring == 0 and pinky == 0:
+                gesture = "V"
+
+            elif thumb == 1 and index == 1 and middle == 0 and ring == 0 and pinky == 0:
                 gesture = "L"
 
             elif thumb == 0 and index == 0 and middle == 0 and ring == 0 and pinky == 1:
                 gesture = "I"
 
+            elif thumb == 1 and index == 1 and middle == 0 and ring == 0 and pinky == 1:
+                gesture = "I LOVE YOU"
+
+            elif thumb == 1 and index == 0 and middle == 0 and ring == 0 and pinky == 0:
+                gesture = "GOOD"
+
             if gesture != "" and gesture != last_gesture:
                 engine.say(gesture)
                 engine.runAndWait()
 
-                with open("gestures.txt", "w") as file:
-                    file.write("Gesture Log\n\n")
+                with open("gestures.txt", "a") as file:
+                    file.write(f"{datetime.now()} - {gesture}\n")
 
                 last_gesture = gesture
 
